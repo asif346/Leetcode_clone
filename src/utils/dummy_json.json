@@ -1,0 +1,44 @@
+  {
+  "title": "Two Sum Problem",
+  "description": "Given an array of integers, return indices of the two numbers such that they add up to a specific target.",
+  "difficulty": "easy",
+  "tags": "array",
+  "visibletestcases": [
+    {
+      "input": "nums = [2,7,11,15], target = 9",
+      "output": "[0,1]",
+      "explanation": "nums[0] + nums[1] = 2 + 7 = 9"
+    },
+    {
+      "input": "nums = [3,2,4], target = 6",
+      "output": "[1,2]",
+      "explanation": "nums[1] + nums[2] = 2 + 4 = 6"
+    }
+  ],
+  "invisibletestcases": [
+    {
+      "input": "nums = [1,2,3,4,5], target = 7",
+      "output": "[1,4]"
+    }
+  ],
+  "startcode": [
+    {
+      "language": "javascript",
+      "initialcode": "function twoSum(nums, target) {\n  // Write your code here\n}"
+    },
+    {
+      "language": "python",
+      "initialcode": "def two_sum(nums, target):\n    # Write your code here\n    pass"
+    }
+  ],
+  "referenceSolution": [
+    {
+      "language": "javascript",
+      "completecode": "function twoSum(nums, target) {\n  const map = {};\n  for(let i=0;i<nums.length;i++){\n    const complement = target - nums[i];\n    if(map[complement] !== undefined) return [map[complement], i];\n    map[nums[i]] = i;\n  }\n}"
+    },
+    {
+      "language": "python",
+      "completecode": "def two_sum(nums, target):\n    lookup = {}\n    for i, num in enumerate(nums):\n        if target - num in lookup:\n            return [lookup[target - num], i]\n        lookup[num] = i"
+    }
+  ]
+}
