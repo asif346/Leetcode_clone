@@ -1,12 +1,15 @@
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const getLanguageById = (lang) => {
   const language = {
     "c++": 54,
-    "java": 62,
-    "javascript": 63,
-    "python": 71,
+    java: 62,
+    javascript: 63,
+    python: 71,
   };
+
   return language[lang.toLowerCase()];
 };
 
@@ -14,19 +17,19 @@ export const getLanguageById = (lang) => {
 export const submitBatch = async (submissions) => {
   const options = {
     method: "POST",
-    url: "https://judge0-ce.p.rapidapi.com/submissions/batch", // ✅ correct endpoint
+    url: "https://judge0-ce.p.rapidapi.com/submissions/batch",
     params: {
       base64_encoded: "false",
       wait: "false",
       fields: "*",
     },
     headers: {
-      "x-rapidapi-key": "16a891a1bcmshe1c8c3a5279ea7bp1a3d0fjsn9e0b3fcc0277",
+      "x-rapidapi-key": process.env.RAPIDAPI_KEY,
       "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
       "Content-Type": "application/json",
     },
     data: {
-      submissions, // ✅ must be wrapped
+      submissions,
     },
   };
 
@@ -52,7 +55,7 @@ export const submitToken = async (resultToken) => {
       fields: "*",
     },
     headers: {
-      "x-rapidapi-key": "16a891a1bcmshe1c8c3a5279ea7bp1a3d0fjsn9e0b3fcc0277", // ✅ use real key
+      "x-rapidapi-key": process.env.RAPIDAPI_KEY,
       "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
     },
   };
@@ -68,7 +71,7 @@ export const submitToken = async (resultToken) => {
         return result.submissions;
       }
 
-      await waiting(1000); // ✅ wait 1s before retry
+      await waiting(1000); // wait 1s before retry
     } catch (error) {
       console.error("submitToken error:", error.response?.data || error.message);
       throw error;

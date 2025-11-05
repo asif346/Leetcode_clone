@@ -1,4 +1,6 @@
 import Problem from "../models/problem.js";
+import Submission from "../models/submission.js";
+
 import {
   getLanguageById,
   submitBatch,
@@ -158,7 +160,9 @@ const getProblemById = async (req, res) => {
   try {
     if (!id) return res.status(400).send("id is missing");
 
-    const GetProblemById = await Problem.findById(id).select('_id title description difficulty tags visibletestcases startcode referenceSolution');
+    const GetProblemById = await Problem.findById(id).select(
+      "_id title description difficulty tags visibletestcases startcode referenceSolution"
+    );
 
     if (!GetProblemById) {
       return res.status(404).send("Problem is missing");
@@ -172,7 +176,9 @@ const getProblemById = async (req, res) => {
 
 const getAllProblem = async (req, res) => {
   try {
-    const getProblem = await Problem.find({}).select('_id title difficulty tags');
+    const getProblem = await Problem.find({}).select(
+      "_id title difficulty tags"
+    );
 
     if (getProblem.length == 0) {
       return res.status(404).send("Problem is missing");
@@ -184,10 +190,35 @@ const getAllProblem = async (req, res) => {
   }
 };
 
+const solvedAllProblemByUser = async (req, res) => {
+  try {
+    const count = req.result.problemSolved.length;
+    res.status(200).send(count);
+  } catch (err) {
+    res.status(500).send("Internal Server Error " + err);
+  }
+};
+const submittedProblem = async (req, res) => {
+  try {
+    const userId = req.result._id;
+    const problemId = req.params.pid;
+
+    const ans = await Submission.find(userId, problemId);
+
+    if (ans.length == 0) {
+      res.status(200).send("No Submission is present");
+    }
+    res.status(200).send(ans);
+  } catch (err) {
+    res.status(500).send("internal server error");
+  }
+};
 export default {
   createProblem,
   updateProblem,
   deleteProblem,
   getProblemById,
   getAllProblem,
+  solvedAllProblemByUser,
+  submittedProblem,
 };
