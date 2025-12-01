@@ -1,29 +1,41 @@
 import redisClient from "../config/redis.js";
-import User from "../models/user.js"
+import User from "../models/user.js";
 import validate from "../utils/validators.js";
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import Submission from "../models/submission.js";
+// import { use } from "react";
 
-const register = async(req,res)=>{
-    try{
-        // validate the date
-        validate(req.body);
+const register = async (req, res) => {
+  try {
+    // validate the date
+    validate(req.body);
+    console.log(req.body);
 
-       const {firstName, email, password} = req.body;
-       req.body.password = await bcrypt.hash(password, 10);
-       
-       const user = await User.create(req.body);
+    const { firstName, email, password } = req.body;
+    req.body.password = await bcrypt.hash(password, 10);
 
-        const token = jwt.sign({_id:user._id, email:email, role:user.role}, process.env.JWT_KEY,{expiresIn: 60*60});
-        res.cookie('token',token,{maxAge:60*60*1000})
-        res.status(201).send("User Registered Successfully");
-       
-    }
-    catch(error){
-        res.status(400).send("Error"+error);
-    }
-}
+    const user = await User.create(req.body);
+    const reply = {
+      firstName: user.firstName,
+      email: user.email,
+      _id: user._id,
+    };
+
+    const token = jwt.sign(
+      { _id: user._id, email: email, role: user.role },
+      process.env.JWT_KEY,
+      { expiresIn: 60 * 60 }
+    );
+    res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+    res.status(201).json({
+      user: reply,
+      message: "Registered sucessfully",
+    });
+  } catch (error) {
+    res.status(400).send("Error" + error);
+  }
+};
 
 const login = async (req, res) => {
   try {
@@ -43,6 +55,12 @@ const login = async (req, res) => {
       throw new Error("Invalid Credential");
     }
 
+    // const reply ={
+    //   firstName:user.firstName,
+    //   emailId: user.email,
+    //   _id: user._id
+    // }
+
     const token = jwt.sign(
       { _id: user._id, email: email },
       process.env.JWT_KEY,
@@ -50,70 +68,74 @@ const login = async (req, res) => {
     );
 
     res.cookie("token", token, { maxAge: 60 * 60 * 1000, httpOnly: true });
-    res.status(200).send("Logged in Successfully");
+    res.status(200).json({
+      user: reply,
+      message: "Loggin sucessfully",
+    });
   } catch (error) {
     res.status(401).send(error.message);
   }
 };
 
-
 // logout feature
-const logout = async(req,res)=>{
-    try{
-        // validate the token
-        const {token} = req.cookies;
-        const payload = jwt.decode(token);
+const logout = async (req, res) => {
+  try {
+    // validate the token
+    const { token } = req.cookies;
+    const payload = jwt.decode(token);
 
-        await redisClient.set( `token:${token}`,"Blocked");
-        await redisClient.expireAt(`token:${token}`,payload.exp);
+    await redisClient.set(`token:${token}`, "Blocked");
+    await redisClient.expireAt(`token:${token}`, payload.exp);
 
-        res.cookie("token",null,{expires:new Date(Date.now())});
-        res.send("logout successfully");
+    res.cookie("token", null, { expires: new Date(Date.now()) });
+    res.send("logout successfully");
 
-        // token add kar dunga apne redis ke blocklist me
+    // token add kar dunga apne redis ke blocklist me
 
-        // clear the cookie
-
-    }
-    catch(err){
-        res.send("error"+err.message);
-    }
-}
+    // clear the cookie
+  } catch (err) {
+    res.send("error" + err.message);
+  }
+};
 
 // admin register
-const AdminRegister = async(req,res)=>{
-    try{
-        // validate the date
-        validate(req.body);
+const AdminRegister = async (req, res) => {
+  try {
+    // validate the date
+    validate(req.body);
 
-       const {firstName, email, password} = req.body;
-       req.body.password = await bcrypt.hash(password, 10);
-       req.body.role = 'admin';
-       const user = await User.create(req.body);
+    const { firstName, email, password } = req.body;
+    req.body.password = await bcrypt.hash(password, 10);
+    req.body.role = "admin";
+    const user = await User.create(req.body);
 
-        const token = jwt.sign({_id:user._id, email:email, role:'admin'}, process.env.JWT_KEY,{expiresIn: 60*60});
-        res.cookie('token',token,{maxAge:60*60*1000})
-        res.status(201).send("admin Registered Successfully");
-       
-    }
-    catch(error){
-        res.status(400).send("Error"+error);
-    }
-}
+    const token = jwt.sign(
+      { _id: user._id, email: email, role: "admin" },
+      process.env.JWT_KEY,
+      { expiresIn: 60 * 60 }
+    );
+    res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+    res.status(201).send.json({
+      user:reply,
+      message:"admin registered successfully"
+    })
+  } catch (error) {
+    res.status(400).send("Error" + error);
+  }
+};
 
-const deleteProfile = async(req,res)=>{
-  try{
+const deleteProfile = async (req, res) => {
+  try {
     const userId = req.result._id;
 
     await User.findByIdAndDelete(userId);
 
     /// submission me bhi delete kar do
-    await Submission.deleteMany({userId});
+    await Submission.deleteMany({ userId });
 
     res.status(200).send("deleted successfully");
-
-  }catch(err){
+  } catch (err) {
     res.status(500).send("internal server error");
   }
-}
-export default {register, login, logout, AdminRegister, deleteProfile}
+};
+export default { register, login, logout, AdminRegister, deleteProfile };

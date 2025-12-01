@@ -9,6 +9,15 @@ import redisClient from "./config/redis.js";
 import problemRouter from "./routes/problemCreator.js";
 import submitRouter from "./routes/submit.js";
 
+import cors from "cors";
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // frontend URL
+    credentials: true, // allow cookies / auth headers
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 

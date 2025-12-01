@@ -1,7 +1,7 @@
 import express from 'express'
 import userMiddleware from '../middleware/userMiddleware.js'
 import authController from "../controllers/getUserAuth.js";
-const { register, login, logout, AdminRegister } = authController;
+const { register, login, logout, AdminRegister,deleteProfile } = authController;
 import AdminMiddleware from '../middleware/AdminMiddleware.js';
 
 const authRouter = express.Router();
@@ -10,7 +10,20 @@ const authRouter = express.Router();
 authRouter.post('/register', register);
 authRouter.post('/login',login);
 authRouter.post('/logout',userMiddleware, logout);
-authRouter.post('/AdminRegister',AdminRegister);
+authRouter.post('/AdminRegister',AdminMiddleware,AdminRegister);
+authRouter.delete('/deleteProfile',userMiddleware,deleteProfile);
+authRouter.get('/check', userMiddleware, (req,res)=>{
+    const reply = {
+        firstName:req.result.firstName,
+        emailId:req.result.email,
+        _id:req.result._id,
+    }
+    res.send(200).json({
+        user:reply,
+        message:"valid user",
+    })
+})
 // authRouter.get('getProfile',getProfile);
+
 
 export default authRouter;
