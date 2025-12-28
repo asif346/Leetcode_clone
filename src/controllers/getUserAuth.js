@@ -4,10 +4,12 @@ import validate from "../utils/validators.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Submission from "../models/submission.js";
+import { response } from "express";
 // import { use } from "react";
 
 const register = async (req, res) => {
   try {
+    // return res.send("register tak ");
     // validate the date
     validate(req.body);
     console.log(req.body);
@@ -39,8 +41,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
+    const { emailId, password } = req.body;
+    const email = emailId;
     if (!email || !password) {
       throw new Error("Invalid Credential");
     }
@@ -55,11 +57,11 @@ const login = async (req, res) => {
       throw new Error("Invalid Credential");
     }
 
-    // const reply ={
-    //   firstName:user.firstName,
-    //   emailId: user.email,
-    //   _id: user._id
-    // }
+    const reply ={
+      firstName:user.firstName,
+      emailId: user.email,
+      _id: user._id
+    }
 
     const token = jwt.sign(
       { _id: user._id, email: email },
@@ -70,7 +72,7 @@ const login = async (req, res) => {
     res.cookie("token", token, { maxAge: 60 * 60 * 1000, httpOnly: true });
     res.status(200).json({
       user: reply,
-      message: "Loggin sucessfully",
+      message: "Loggin sucessfully ho gya ",
     });
   } catch (error) {
     res.status(401).send(error.message);

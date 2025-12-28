@@ -33,7 +33,7 @@ const userMiddleware = async (req, res, next)=>{
             throw new Error("Invalid Token");
 
         }
-        req.result = result;
+        return req.result = result;
 
         next();
     }

@@ -15,7 +15,7 @@ const validate = (data)=>{
 
     if(!validator.isStrongPassword(data.password))
     {
-        throw new Error('wrong password')
+        throw new Error('weak password or may be wrong password')
     }
 }
 

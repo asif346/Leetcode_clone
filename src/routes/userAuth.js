@@ -18,7 +18,7 @@ authRouter.get('/check', userMiddleware, (req,res)=>{
         emailId:req.result.email,
         _id:req.result._id,
     }
-    res.send(200).json({
+    return res.send(200).json({
         user:reply,
         message:"valid user",
     })
