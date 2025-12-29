@@ -59,6 +59,7 @@ const authSlice = createSlice({
       register: false,
       login: false,
       check: false,
+      logout:false
     },
     error: null,
   },
@@ -118,17 +119,17 @@ const authSlice = createSlice({
 
       // Logout User Cases
       .addCase(logoutUser.pending, (state) => {
-        state.loading = true;
+        state.loading.logout = true;
         state.error = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        state.loading = false;
+        state.loading.logout = false;
         state.user = null;
         state.isAuthenticated = false;
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
-        state.loading = false;
+        state.loading.logout = false;
         state.error = action.payload?.message || "Something went wrong";
         state.isAuthenticated = false;
         state.user = null;

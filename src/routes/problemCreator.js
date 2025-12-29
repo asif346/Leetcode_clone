@@ -4,7 +4,14 @@ import AdminMiddleware from '../middleware/AdminMiddleware.js';
 import userMiddleware from "../middleware/userMiddleware.js"
 import userProblem from '../controllers/userProblem.js';
 
-const { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem } = userProblem;
+const {
+  createProblem,
+  updateProblem,
+  deleteProblem,
+  getProblemById,
+  getAllProblem,
+  solvedAllProblemByUser,
+} = userProblem;
 
 // create
 problemRouter.post('/create',AdminMiddleware,createProblem);
@@ -16,7 +23,7 @@ problemRouter.delete('/delete/:id',AdminMiddleware,deleteProblem);
 
 problemRouter.get('/ProblemById/:id',userMiddleware,getProblemById);
 problemRouter.get('/getAllProblem/',userMiddleware,getAllProblem);
-// problemRouter.get('/problemSolvedByUser/user',userMiddleware,solvedAllProblemByUser);
+problemRouter.get('/problemSolvedByUser',userMiddleware,solvedAllProblemByUser);
 // fetch
 
 export default problemRouter;

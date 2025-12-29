@@ -183,9 +183,9 @@ const getAllProblem = async (req, res) => {
       return res.status(404).send("Problem is missing");
     }
 
-    res.status(200).send(getProblem);
+    return res.status(200).send(getProblem);
   } catch (err) {
-    res.send("error occured" + err);
+    res.status(500).send("error occured" + err);
   }
 };
 
