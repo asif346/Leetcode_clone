@@ -1,7 +1,7 @@
 import validator from 'validator'
 
 const validate = (data)=>{
-    const mendatoryField = ['firstName', 'email', 'password']
+    const mendatoryField = ['firstName', 'emailId', 'password']
 
     const Isallowed = mendatoryField.every((k)=>Object.keys(data).includes(k));
 
@@ -10,8 +10,8 @@ const validate = (data)=>{
         throw new Error('some field missing');
     }
 
-    if(!validator.isEmail(data.email))
-        throw new Error('Invalid Email');
+    if (!validator.isEmail(data.emailId)) 
+    throw new Error("Invalid Email");
 
     if(!validator.isStrongPassword(data.password))
     {

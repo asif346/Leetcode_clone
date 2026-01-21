@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { data, NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 import { useSelector,useDispatch } from "react-redux";
 import {logoutUser} from "../authSlice";
 // import axios from "axios";
@@ -22,7 +22,7 @@ export default function HomePage() {
       } catch (error) {
         console.error("Error Fetching Problem:",error)
       }
-      console.log(data)
+      // console.log(data)
     };
 
     const fetchSolvedProblem = async ()=>{
@@ -37,8 +37,7 @@ export default function HomePage() {
       }
     }
     fechProblems();
-    if(user)
-      fetchSolvedProblem();
+    if(user) fetchSolvedProblem();
   },[user]);
   const handleLogout = ()=>{
     dispatch(logoutUser());

@@ -1,52 +1,51 @@
-import React from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
-import z from "zod";
+import { z } from "zod";
 import axiosClient from "../utils/axiosClient";
+import { useNavigate } from "react-router";
 
 // Zod schema matching the problem schema
-const ProblemSchema = z.object({
-  title: z.string().min(1, "title is required"),
-  description: z.string().min(1, "description is required"),
-  difficulty: z.enum(["easy, medium, hard"]),
-  tags: z.enum(["array, LinkedList, graph, DP"]),
-  visibleTestCases: z
+const problemSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  difficulty: z.enum(["easy", "medium", "hard"]),
+  tags: z.enum(["array", "linkedList", "graph", "dp"]),
+  visibletestcases: z
     .array(
       z.object({
-        input: z.string().min(1, "input is required"),
-        output: z.string().min(1, "output is required"),
-        explanation: z.string().min(1, "explanation is required"),
+        input: z.string().min(1, "Input is required"),
+        output: z.string().min(1, "Output is required"),
+        explanation: z.string().min(1, "Explanation is required"),
       })
     )
-    .min(1, "atleast one visible Test Cases is required"),
-  hiddenTestCases: z
+    .min(1, "At least one visible test case required"),
+  invisibletestcases: z
     .array(
       z.object({
-        input: z.string().min(1, "input is required"),
-        output: z.string().min(1, "output is required"),
+        input: z.string().min(1, "Input is required"),
+        output: z.string().min(1, "Output is required"),
       })
     )
-    .min(1, "atleast one hidden test case is required"),
-  startCode: z
+    .min(1, "At least one hidden test case required"),
+  startcode: z
     .array(
       z.object({
-        language: z.enum(["C++", "Java", "JavaScript"]),
-        initialCode: z.string().min(1, "Initial code is required"),
+        language: z.enum(["c++", "java", "javaScript"]),
+        initialcode: z.string().min(1, "Initial code is required"),
       })
     )
     .length(3, "All three languages required"),
   referenceSolution: z
     .array(
       z.object({
-        language: z.enum(["C++", "Java", "JavaScript"]),
-        completeCode: z.string().min(1, "Complete code is required"),
+        language: z.enum(["c++", "java", "javaScript"]),
+        completecode: z.string().min(1, "Complete code is required"),
       })
     )
     .length(3, "All three languages required"),
 });
 
-export default function AdminPannel() {
+function AdminPanel() {
   const navigate = useNavigate();
   const {
     register,
@@ -54,17 +53,17 @@ export default function AdminPannel() {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(ProblemSchema),
+    resolver: zodResolver(problemSchema),
     defaultValues: {
-      startCode: [
-        { language: "C++", initialCode: "" },
-        { language: "Java", initialCode: "" },
-        { language: "JavaScript", initialCode: "" },
+      startcode: [
+        { language: "c++", initialcode: "" },
+        { language: "java", initialcode: "" },
+        { language: "javaScript", initialcode: "" },
       ],
       referenceSolution: [
-        { language: "C++", completeCode: "" },
-        { language: "Java", completeCode: "" },
-        { language: "JavaScript", completeCode: "" },
+        { language: "c++", completecode: "" },
+        { language: "java", completecode: "" },
+        { language: "javaScript", completecode: "" },
       ],
     },
   });
@@ -75,7 +74,7 @@ export default function AdminPannel() {
     remove: removeVisible,
   } = useFieldArray({
     control,
-    name: "visibleTestCases",
+    name: "visibletestcases",
   });
 
   const {
@@ -84,26 +83,30 @@ export default function AdminPannel() {
     remove: removeHidden,
   } = useFieldArray({
     control,
-    name: "hiddenTestCases",
+    name: "invisibletestcases",
   });
+
   const onSubmit = async (data) => {
     try {
+      console.log(data);
       await axiosClient.post("/problem/create", data);
       alert("Problem created successfully!");
       navigate("/");
     } catch (error) {
       alert(`Error: ${error.response?.data?.message || error.message}`);
+      console.log(error);
     }
   };
+
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-3xl font-bold mb-6">Create New Problem</h2>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <h1 className="text-3xl font-bold mb-6">Create New Problem</h1>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
-        <div>
-          <h2>Basic Information</h2>
-          <div>
-            {/* title */}
+        <div className="card bg-base-100 shadow-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+          <div className="space-y-4">
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Title</span>
@@ -119,7 +122,6 @@ export default function AdminPannel() {
               )}
             </div>
 
-            {/* {description} */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Description</span>
@@ -136,7 +138,6 @@ export default function AdminPannel() {
             </div>
 
             <div className="flex gap-4">
-              {/* difficulty */}
               <div className="form-control w-1/2">
                 <label className="label">
                   <span className="label-text">Difficulty</span>
@@ -153,7 +154,6 @@ export default function AdminPannel() {
                 </select>
               </div>
 
-              {/* tags */}
               <div className="form-control w-1/2">
                 <label className="label">
                   <span className="label-text">Tag</span>
@@ -174,52 +174,58 @@ export default function AdminPannel() {
           </div>
         </div>
 
-        {/* test cases */}
-        <div>
-          <h2>Test Cases</h2>
-          <div>
-            <h3>visible test cases</h3>
-            <button
-              type="button"
-              onClick={() =>
-                appendVisible({ input: "", output: "", explanation: "" })
-              }
-              className="btn btn-sm btn-primary"
-            >
-              Add visible test case
-            </button>
-          </div>
-          {visibleFields.map((field, index) => (
-            <div key={field.id} className="border p-4 rounded-lg space-y-2">
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => removeVisible(index)}
-                  className="btn btn-xs btn-error"
-                >
-                  Remove
-                </button>
-              </div>
+        {/* Test Cases */}
+        <div className="card bg-base-100 shadow-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">Test Cases</h2>
 
-              <input
-                {...register(`visibleTestCases.${index}.input`)}
-                placeholder="Input"
-                className="input input-bordered w-full"
-              />
-
-              <input
-                {...register(`visibleTestCases.${index}.output`)}
-                placeholder="Output"
-                className="input input-bordered w-full"
-              />
-
-              <textarea
-                {...register(`visibleTestCases.${index}.explanation`)}
-                placeholder="Explanation"
-                className="textarea textarea-bordered w-full"
-              />
+          {/* Visible Test Cases */}
+          <div className="space-y-4 mb-6">
+            <div className="flex justify-between items-center">
+              <h3 className="font-medium">Visible Test Cases</h3>
+              <button
+                type="button"
+                onClick={() =>
+                  appendVisible({ input: "", output: "", explanation: "" })
+                }
+                className="btn btn-sm btn-primary"
+              >
+                Add Visible Case
+              </button>
             </div>
-          ))}
+
+            {visibleFields.map((field, index) => (
+              <div key={field.id} className="border p-4 rounded-lg space-y-2">
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => removeVisible(index)}
+                    className="btn btn-xs btn-error"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <input
+                  {...register(`visibletestcases.${index}.input`)}
+                  placeholder="Input"
+                  className="input input-bordered w-full"
+                />
+
+                <input
+                  {...register(`visibletestcases.${index}.output`)}
+                  placeholder="Output"
+                  className="input input-bordered w-full"
+                />
+
+                <textarea
+                  {...register(`visibletestcases.${index}.explanation`)}
+                  placeholder="Explanation"
+                  className="textarea textarea-bordered w-full"
+                />
+              </div>
+            ))}
+          </div>
+
           {/* Hidden Test Cases */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -246,13 +252,13 @@ export default function AdminPannel() {
                 </div>
 
                 <input
-                  {...register(`hiddenTestCases.${index}.input`)}
+                  {...register(`invisibletestcases.${index}.input`)}
                   placeholder="Input"
                   className="input input-bordered w-full"
                 />
 
                 <input
-                  {...register(`hiddenTestCases.${index}.output`)}
+                  {...register(`invisibletestcases.${index}.output`)}
                   placeholder="Output"
                   className="input input-bordered w-full"
                 />
@@ -260,7 +266,7 @@ export default function AdminPannel() {
             ))}
           </div>
         </div>
-        
+
         {/* Code Templates */}
         <div className="card bg-base-100 shadow-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Code Templates</h2>
@@ -269,7 +275,7 @@ export default function AdminPannel() {
             {[0, 1, 2].map((index) => (
               <div key={index} className="space-y-2">
                 <h3 className="font-medium">
-                  {index === 0 ? "C++" : index === 1 ? "Java" : "JavaScript"}
+                  {index === 0 ? "c++" : index === 1 ? "java" : "javaScript"}
                 </h3>
 
                 <div className="form-control">
@@ -278,7 +284,7 @@ export default function AdminPannel() {
                   </label>
                   <pre className="bg-base-300 p-4 rounded-lg">
                     <textarea
-                      {...register(`startCode.${index}.initialCode`)}
+                      {...register(`startcode.${index}.initialcode`)}
                       className="w-full bg-transparent font-mono"
                       rows={6}
                     />
@@ -291,7 +297,7 @@ export default function AdminPannel() {
                   </label>
                   <pre className="bg-base-300 p-4 rounded-lg">
                     <textarea
-                      {...register(`referenceSolution.${index}.completeCode`)}
+                      {...register(`referenceSolution.${index}.completecode`)}
                       className="w-full bg-transparent font-mono"
                       rows={6}
                     />
@@ -309,3 +315,5 @@ export default function AdminPannel() {
     </div>
   );
 }
+
+export default AdminPanel;

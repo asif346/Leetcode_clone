@@ -14,20 +14,21 @@ const register = async (req, res) => {
     validate(req.body);
     console.log(req.body);
 
-    const { firstName, email, password } = req.body;
+    const { firstName, emailId, password } = req.body;
     req.body.password = await bcrypt.hash(password, 10);
 
     const user = await User.create(req.body);
     const reply = {
       firstName: user.firstName,
-      email: user.email,
+      emailId: user.emailId,
       _id: user._id,
+      role: user.role,
     };
 
     const token = jwt.sign(
-      { _id: user._id, email: email, role: user.role },
+      { _id: user._id, email: emailId, role: user.role },
       process.env.JWT_KEY,
-      { expiresIn: 60 * 60 }
+      { expiresIn: 60 * 60 },
     );
     res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
     res.status(201).json({
@@ -59,12 +60,13 @@ const login = async (req, res) => {
 
     const reply ={
       firstName:user.firstName,
-      emailId: user.email,
-      _id: user._id
+      email: user.email,
+      _id: user._id,
+      role: user.role
     }
 
     const token = jwt.sign(
-      { _id: user._id, email: email },
+      { _id: user._id, email: email, role: user.role },
       process.env.JWT_KEY,
       { expiresIn: 60 * 60 } // 1 hour
     );
@@ -106,17 +108,25 @@ const AdminRegister = async (req, res) => {
     // validate the date
     validate(req.body);
 
-    const { firstName, email, password } = req.body;
+    const { firstName, emailId, password } = req.body;
     req.body.password = await bcrypt.hash(password, 10);
     req.body.role = "admin";
     const user = await User.create(req.body);
 
     const token = jwt.sign(
-      { _id: user._id, email: email, role: "admin" },
+      { _id: user._id, email: emailId, role: "admin" },
       process.env.JWT_KEY,
-      { expiresIn: 60 * 60 }
+      { expiresIn: 60 * 60 },
     );
     res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+
+    const reply = {
+      firstName: user.firstName,
+      emailId: user.emailId,
+      _id: user._id,
+      role: user.role,
+    };
+
     res.status(201).send.json({
       user:reply,
       message:"admin registered successfully"
