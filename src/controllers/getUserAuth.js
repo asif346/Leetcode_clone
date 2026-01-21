@@ -43,12 +43,11 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { emailId, password } = req.body;
-    const email = emailId;
-    if (!email || !password) {
+    if (!emailId || !password) {
       throw new Error("Invalid Credential");
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ emailId });
     if (!user) {
       throw new Error("Invalid Credential");
     }
@@ -58,17 +57,17 @@ const login = async (req, res) => {
       throw new Error("Invalid Credential");
     }
 
-    const reply ={
-      firstName:user.firstName,
-      email: user.email,
+    const reply = {
+      firstName: user.firstName,
+      emailId: user.emailId,
       _id: user._id,
-      role: user.role
-    }
+      role: user.role,
+    };
 
     const token = jwt.sign(
-      { _id: user._id, email: email, role: user.role },
+      { _id: user._id, emailId: emailId, role: user.role },
       process.env.JWT_KEY,
-      { expiresIn: 60 * 60 } // 1 hour
+      { expiresIn: 60 * 60 }, // 1 hour
     );
 
     res.cookie("token", token, { maxAge: 60 * 60 * 1000, httpOnly: true });
